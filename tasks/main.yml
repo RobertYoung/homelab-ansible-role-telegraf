@@ -1,0 +1,54 @@
+---
+- name: Add influxdata repo
+  become: true
+  ansible.builtin.deb822_repository:
+    name: influxdata
+    types: [deb]
+    uris: "https://repos.influxdata.com/debian"
+    suites:
+      - >-
+        {{ 'bookworm' if ansible_facts['distribution_release'] == 'trixie'
+        else ansible_facts['distribution_release'] }}
+    components: [main]
+    signed_by: https://repos.influxdata.com/influxdata-archive.key
+    state: present
+    enabled: true
+
+- name: Update apt and install telegraf
+  become: true
+  ansible.builtin.apt:
+    update_cache: true
+    name: telegraf
+    state: present
+
+- name: Copy telegraf config
+  become: true
+  ansible.builtin.template:
+    src: templates/telegraf.conf.j2
+    dest: /etc/telegraf/telegraf.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: "Restart {{ telegraf_service_name }}"
+
+- name: "Create telegraf systemd service file"
+  become: true
+  ansible.builtin.template:
+    src: "templates/telegraf.service.j2"
+    dest: /etc/systemd/system/{{ telegraf_service_name }}.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: "Restart {{ telegraf_service_name }}"
+
+- name: Add telegraf user to docker group
+  become: true
+  ansible.builtin.user:
+    name: telegraf
+    groups: docker
+    append: true
+# - name: Install sensors
+#   become: true
+#   ansible.builtin.apt:
+#     name: lm-sensors
+#     state: present

@@ -1,0 +1,23 @@
+---
+galaxy_info:
+  author: RobertYoung
+  description: Ansible role for installing and configuring Telegraf metrics collection agent with InfluxDB output
+  license: MIT
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+        - noble
+    - name: Debian
+      versions:
+        - bullseye
+        - bookworm
+  galaxy_tags:
+    - telegraf
+    - monitoring
+    - metrics
+    - influxdb
+
+dependencies: []
