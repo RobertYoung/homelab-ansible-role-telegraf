@@ -1,0 +1,31 @@
+[[inputs.cpu]]
+  percpu = true
+  totalcpu = true
+  collect_cpu_time = false
+  report_active = false
+  core_tags = false
+
+[[inputs.mem]]
+
+[[inputs.swap]]
+
+[[inputs.disk]]
+
+[[inputs.docker]]
+
+[[inputs.system]]
+
+[[inputs.diskio]]
+
+[[inputs.nstat]]
+  dump_zeros = true
+
+[[inputs.processes]]
+
+[[inputs.netstat]]
+
+[[outputs.influxdb_v2]]
+  urls = ["{{ telegraf_influxdb_url }}"]
+  organization = "{{ telegraf_influxdb_organisation }}"
+  token = "{{ telegraf_influxdb_token }}"
+  bucket = "{{ telegraf_influxdb_bucket }}"
