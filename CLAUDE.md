@@ -4,37 +4,56 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an Ansible role (`telegraf`) for installing and configuring the Telegraf metrics collection agent on Ubuntu/Debian systems. It configures Telegraf to send metrics to InfluxDB.
+Ansible role (`telegraf`) for installing and configuring the Telegraf metrics collection agent on Ubuntu/Debian systems. Sends metrics to InfluxDB v2.
 
 ## Development Commands
 
-### Linting
 ```bash
+# Linting
 yamllint .                    # Lint all YAML files
-ansible-lint                  # Lint Ansible code (currently disabled in CI)
-```
+ansible-lint                  # Lint Ansible code
 
-### Pre-commit Hooks
-```bash
-pre-commit install            # Install hooks
+# Pre-commit
+pre-commit install            # Install hooks (one-time setup)
 pre-commit run --all-files    # Run all hooks manually
+
+# Molecule testing (Docker-based)
+molecule test          # Run full test suite
+molecule converge      # Apply role to test container
+molecule verify        # Run verification only
+molecule login         # Access container for debugging
+molecule destroy       # Clean up test containers
+
+# Tool management
+mise install           # Install tool versions (Ansible 13, pipx 1.8)
 ```
 
-### Tool Management
-Uses `mise` for tool versions (Ansible 13, pipx 1.8). Run `mise install` to set up.
+## Role Variables
 
-## Role Structure
+All have defaults in `defaults/main.yml`. Override `telegraf_influxdb_token` with a valid token.
 
-- `tasks/main.yml` - Installs Telegraf, configures systemd service, and sets up InfluxDB output
-- `defaults/main.yml` - Default variables (service name, InfluxDB connection settings)
-- `handlers/main.yml` - Handlers for restarting Telegraf and reloading systemd
-- `templates/telegraf.conf.j2` - Telegraf configuration template
-- `templates/telegraf.service.j2` - Systemd service unit template
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `telegraf_influxdb_token` | `SECRET123` | InfluxDB authentication token |
+| `telegraf_influxdb_url` | `localhost` | InfluxDB server URL |
+| `telegraf_influxdb_organisation` | `my-org` | InfluxDB organisation |
+| `telegraf_influxdb_bucket` | `my-bucket` | InfluxDB bucket |
+| `telegraf_docker_input_enabled` | `true` | Enable Docker metrics input plugin |
 
-## Required Variables
+## Architecture
 
-All variables have defaults, but you should override `telegraf_influxdb_token` with a valid InfluxDB token.
+- `tasks/main.yml` - Adds InfluxData repo, installs Telegraf, deploys config/service, optionally adds user to docker group
+- `handlers/main.yml` - Handler chain: stop service → reload systemd → start service (enabled)
+- `templates/telegraf.conf.j2` - Telegraf config with conditional docker input plugin
+- `templates/telegraf.service.j2` - Systemd unit file
+- `molecule/default/prepare.yml` - Installs `python3-debian` for `deb822_repository` module
 
 ## YAML Style
 
-Line length max 120, truthy values must be "true"/"false"/"yes"/"no", 1 space minimum after comments.
+Line length max 120, truthy values `true`/`false` or `yes`/`no`, 1 space minimum after comments.
+
+## Commit Convention
+
+Uses [Conventional Commits](https://www.conventionalcommits.org/) for semantic-release:
+- `feat:` → minor, `fix:` → patch, `docs:`/`refactor:`/`perf:` → patch
+- `chore:`/`test:`/`ci:` → no release

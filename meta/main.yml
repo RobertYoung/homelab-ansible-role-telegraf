@@ -1,5 +1,7 @@
 ---
 galaxy_info:
+  role_name: telegraf
+  namespace: robertyoung
   author: RobertYoung
   description: Ansible role for installing and configuring Telegraf metrics collection agent with InfluxDB output
   license: MIT

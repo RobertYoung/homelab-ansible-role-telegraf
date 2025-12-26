@@ -4,3 +4,4 @@ telegraf_influxdb_url: "localhost"
 telegraf_influxdb_organisation: "my-org"
 telegraf_influxdb_token: "SECRET123"
 telegraf_influxdb_bucket: "my-bucket"
+telegraf_docker_input_enabled: true

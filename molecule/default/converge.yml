@@ -1,0 +1,10 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+  vars:
+    telegraf_influxdb_url: "http://localhost:8086"
+    telegraf_influxdb_token: "test-token"
+    telegraf_docker_input_enabled: false
+  roles:
+    - role: robertyoung.telegraf
