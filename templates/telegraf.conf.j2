@@ -11,8 +11,10 @@
 
 [[inputs.disk]]
 
+{% if telegraf_docker_input_enabled %}
 [[inputs.docker]]
 
+{% endif %}
 [[inputs.system]]
 
 [[inputs.diskio]]

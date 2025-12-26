@@ -41,12 +41,23 @@
     mode: "0644"
   notify: "Restart {{ telegraf_service_name }}"
 
+- name: Flush handlers to ensure service is started
+  ansible.builtin.meta: flush_handlers
+
+- name: Check if docker group exists
+  ansible.builtin.getent:
+    database: group
+    key: docker
+  register: docker_group
+  failed_when: false
+
 - name: Add telegraf user to docker group
   become: true
   ansible.builtin.user:
     name: telegraf
     groups: docker
     append: true
+  when: docker_group.ansible_facts is defined
 # - name: Install sensors
 #   become: true
 #   ansible.builtin.apt:

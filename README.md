@@ -1,5 +1,11 @@
 # homelab-ansible-role-telegraf
 
+[![Lint](https://github.com/RobertYoung/homelab-ansible-role-telegraf/actions/workflows/lint.yml/badge.svg)](https://github.com/RobertYoung/homelab-ansible-role-telegraf/actions/workflows/lint.yml)
+[![Release](https://github.com/RobertYoung/homelab-ansible-role-telegraf/actions/workflows/release.yml/badge.svg)](https://github.com/RobertYoung/homelab-ansible-role-telegraf/actions/workflows/release.yml)
+[![SLSA 3](https://slsa.dev/images/gh-badge-level3.svg)](https://slsa.dev)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/RobertYoung/homelab-ansible-role-telegraf/badge)](https://scorecard.dev/viewer/?uri=github.com/RobertYoung/homelab-ansible-role-telegraf)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Ansible role for installing and configuring Telegraf metrics collection agent with InfluxDB output.
 
 ## Requirements
@@ -37,6 +43,16 @@ ansible-galaxy install -r requirements.yml
 
 ```yaml
 - hosts: servers
+  become: true
+  roles:
+    - role: telegraf
+```
+
+### Override defaults
+
+```yaml
+- hosts: servers
+  become: true
   roles:
     - role: telegraf
       vars:
@@ -52,6 +68,29 @@ ansible-galaxy install -r requirements.yml
 - Custom systemd service configuration
 - Telegraf configuration for InfluxDB v2 output
 - Telegraf user added to docker group for container metrics
+
+## Supply Chain Security
+
+This project implements [SLSA](https://slsa.dev/) Level 3 provenance for release artifacts.
+
+- Provenance attestations are submitted to [GitHub Attestations](https://github.com/RobertYoung/homelab-ansible-role-telegraf/attestations)
+- Release artifacts include `.intoto.jsonl` provenance files
+- Security posture tracked via [OpenSSF Scorecard](https://scorecard.dev/viewer/?uri=github.com/RobertYoung/homelab-ansible-role-telegraf)
+
+### Verifying Release Provenance
+
+```bash
+# Using GitHub CLI (recommended)
+gh attestation verify telegraf-<VERSION>.tar.gz \
+  --repo RobertYoung/homelab-ansible-role-telegraf
+
+# Or using slsa-verifier
+VERSION="v1.0.0"  # Replace with desired version
+slsa-verifier verify-artifact telegraf-${VERSION}.tar.gz \
+  --provenance-path telegraf-${VERSION}.tar.gz.intoto.jsonl \
+  --source-uri github.com/RobertYoung/homelab-ansible-role-telegraf \
+  --source-tag "${VERSION}"
+```
 
 ## License
 

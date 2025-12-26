@@ -1,0 +1,58 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Assert telegraf package is installed
+      ansible.builtin.assert:
+        that:
+          - "'telegraf' in ansible_facts.packages"
+        fail_msg: "telegraf package is not installed"
+        success_msg: "telegraf package is installed"
+
+    - name: Check telegraf.conf exists
+      ansible.builtin.stat:
+        path: /etc/telegraf/telegraf.conf
+      register: telegraf_conf
+
+    - name: Assert telegraf.conf exists
+      ansible.builtin.assert:
+        that:
+          - telegraf_conf.stat.exists
+        fail_msg: "telegraf.conf does not exist"
+        success_msg: "telegraf.conf exists"
+
+    - name: Read telegraf.conf content
+      ansible.builtin.slurp:
+        src: /etc/telegraf/telegraf.conf
+      register: telegraf_content
+
+    - name: Assert telegraf.conf contains expected configuration
+      ansible.builtin.assert:
+        that:
+          - "'influxdb_v2' in (telegraf_content.content | b64decode)"
+          - "'test-token' in (telegraf_content.content | b64decode)"
+        fail_msg: "telegraf.conf does not contain expected InfluxDB configuration"
+        success_msg: "telegraf.conf contains correct InfluxDB configuration"
+
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
+    - name: Assert telegraf service is recognized
+      ansible.builtin.assert:
+        that:
+          - "'telegraf.service' in ansible_facts.services"
+        fail_msg: "telegraf service is not recognized by systemd"
+        success_msg: "telegraf service is recognized by systemd"
+
+    - name: Assert telegraf service is enabled
+      ansible.builtin.assert:
+        that:
+          - ansible_facts.services['telegraf.service'].status == 'enabled'
+        fail_msg: "telegraf service is not enabled"
+        success_msg: "telegraf service is enabled"
